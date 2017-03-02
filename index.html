@@ -1,0 +1,95 @@
+<html>
+   <head>
+<script src="https://www.gstatic.com/firebasejs/3.7.0/firebase.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<style>
+body{
+  text-align:center;
+}
+.top-bot-not{
+  margin-top: 10px;
+  margin-bottom: 40px;
+}
+.jumbotron{
+  background-color: #5555ff;
+    color: white;
+}
+</style>
+  </head>
+<body>
+  <div class="jumbotron">
+    <h1>Firebase Chat App</h1>
+    <p>Signed in as: <span id="name"></span> - on frequency: <span id="frequency"></span></p>
+  </div>
+    <div class="col-md-2 col-md-offset-5">
+    <div class="input-group">
+      <input type="text" id="u" class="form-control" placeholder="Your Name" maxlength="12">
+      <span class="input-group-btn">
+        <button class="btn btn-default" onclick="document.getElementById('name').innerText = document.getElementById('u').value; document.getElementById('u').value = ''">Go!</button>
+      </span>
+    </div>
+  </div>
+    <div class="col-md-6 col-md-offset-3">
+    <div class="input-group top-bot-not">
+      <input type="text" id="t" class="form-control" placeholder="Send Message" maxlength="100">
+      <span class="input-group-btn">
+        <button class="btn btn-default" onclick="writeUserData(document.getElementById('t').value, document.getElementById('name').innerText,document.getElementById('frequency').innerText)">Go!</button>
+      </span>
+    </div>
+  </div>
+    <br/>
+    <br/>
+    <p class="top-bot-not" id="bigOne"></p>
+    <br/>
+    <br/>
+    <button class="btn btn-danger col-md-4 col-md-offset-4" onclick="popData(document.getElementById('frequency').innerText)">Clear Messages</button>
+</body>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyBt1gPGR-LBGIx0G86igBMTITSJC-fi3w8",
+    authDomain: "test-7e082.firebaseapp.com",
+    databaseURL: "https://test-7e082.firebaseio.com",
+    storageBucket: "test-7e082.appspot.com",
+    messagingSenderId: "132222868371"
+  };
+  firebase.initializeApp(config);
+  var frequency = prompt("Name of Texting Frequency: ");
+  document.getElementById('frequency').innerText = frequency;
+  var bigOne = document.getElementById('bigOne');
+  var dbRef = firebase.database().ref().child(frequency);
+  dbRef.on('value', snap => {
+    if(snap.val()){
+    var renderThis = Object.values(snap.val());
+    renderThis = renderThis.reverse();
+    var rt = "";
+    for(var i = 0; i < renderThis.length; i++){
+      rt = rt+ 
+        `<div class="col-md-4 col-md-offset-4">
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <div class="col-md-2" style="text-align:left;">
+              `+"<b>"+renderThis[i][0]+"</b>:"+`
+              </div>
+              <div class='col-md-10'>
+                `+renderThis[i][1]+`
+              </div>
+            </div>
+          </div>
+        </div>`
+    }bigOne.innerHTML = rt;}
+    else{var rt = "<p>Be the first to message on the "+frequency+ " frequency!</p>"; bigOne.innerHTML = rt;}
+  });
+function writeUserData(text, name, frequency){
+  console.log(text.toLowerCase().includes("scanlan"))
+  if(text == "" || text.length > 100 || text.toLowerCase().includes("scanlan") || text.toLowerCase().includes("scan")){return;}
+  if(name == "" || name.length > 12 || name.toLowerCase().includes("scanlan")){return;}
+  if(frequency == "" || frequency.length > 10){return;}
+  firebase.database().ref(frequency).push([name, text]);
+  document.getElementById('t').value = "";
+}
+function popData(frequency){
+  firebase.database().ref(frequency).set("");
+}
+</script>
+</html>
